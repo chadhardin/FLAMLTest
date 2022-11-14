@@ -3,6 +3,13 @@ from flaml.data import load_openml_dataset
 from flaml.data import get_output_from_log
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import logging
+import pandas as pd
+import numpy as np
+logger = logging.getLogger(__name__)
+logger_formatter = logging.Formatter(
+    "[%(name)s: %(asctime)s] {%(lineno)d} %(levelname)s - %(message)s", "%m-%d %H:%M:%S"
+)
 
 X_train, X_test, y_train, y_test = load_openml_dataset(dataset_id=1169, data_dir='./')
 print("Data type:", type(X_train), type(y_train))
@@ -40,9 +47,9 @@ pt = "feature"
 bvlh = best_valid_loss_history
 vlh = valid_loss_history
 th = time_history
-automl.visualization(type = "feature_importance")
-automl.visualization(type = "validation_accuracy", xlab = xl, ylab = yl, settings = settings)
-
+automl.visualization(type = "feature_importance", level = 1, plotfilename = "Feature_importance")
+automl.visualization(type = "validation_accuracy", xlab = xl, ylab = yl, plotfilename = "Validation_accuracy", settings = settings)
+automl.visualization(type = "feature_importance", level = 2, problem_type = "classification")
 
 
 '''

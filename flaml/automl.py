@@ -2935,7 +2935,15 @@ class AutoML(BaseEstimator):
             xlab = None,
             ylab = None,
             type = None,
-            settings = None,
+            problem_type = None,
+            level = None,
+            class_names = None,
+            plotfilename = None,
+            row_index = 0,
+            plot_type = "waterfall", 
+            model_type = None,
+            explainer = "LIME",
+            **kwargs,
             ):
         try:
             import matplotlib.pyplot as plt
@@ -2946,6 +2954,7 @@ class AutoML(BaseEstimator):
             )
         try:
             import lime
+            from lime import lime_tabular
         except ImportError:
             lime = None
             logger.warning(
@@ -2960,13 +2969,13 @@ class AutoML(BaseEstimator):
             )
         # Showing the feature importance of the data that was trained on
         if type == "feature_importance":
-            feature_importance_type = int(input("Enter 1 for the model's feature importance and enter 2 to use Lime for a different method of feature importance. \n"))
-            plotfilename = input("Enter a filename to save the feature importance figure:\n")
-            if feature_importance_type == 1:
+            if level == 1:
+                plt.clf()
+                plt.cla()
                 plt.barh(self.feature_names_in_, self.feature_importances_)
                 plt.savefig("{}.png".format(plotfilename))
-            """
-            elif feature_importance_type == 2:
+            
+            elif level == 2:
                 ''' The code for calculating feature importance with Lime and Diagnose was provided by group 7 in DS 440'''
                 estimator = getattr(self, "_trained_estimator", None)
                 if estimator is None:
@@ -3058,12 +3067,19 @@ class AutoML(BaseEstimator):
                 automl.visualization(title = "", type = "feature_importance")
                 It will then display the graph
             '''
-            """
+            
         elif type == "validation_accuracy":
             from flaml.data import get_output_from_log
-            plotfilename = input("Enter a filename to save the validation accuracy figure:\n")
-            time_history, best_valid_loss_history, valid_loss_history, config_history, metric_history = \
-                get_output_from_log(filename=settings['log_file_name'], time_budget=240)
+            log_file_name = self._settings["log_file_name"]
+            (
+                time_history,
+                best_valid_loss_history,
+                valid_loss_history,
+                config_history,
+                metric_history,
+            ) = get_output_from_log(
+                filename=log_file_name, time_budget=self._settings["time_budget"]
+            )
             plt.clf()
             plt.cla()
             plt.title(title)
