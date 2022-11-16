@@ -2943,6 +2943,7 @@ class AutoML(BaseEstimator):
             class_names = None,
             plotfilename = None,
             row_index = 0,
+            log_file_name = None,
             plot_type = "waterfall", 
             model_type = None,
             explainer = "LIME",
@@ -3073,14 +3074,7 @@ class AutoML(BaseEstimator):
             
         elif type == "validation_accuracy":
             from flaml.data import get_output_from_log
-            log_file_name = self._settings["log_file_name"]
-            (
-                time_history,
-                best_valid_loss_history,
-                valid_loss_history,
-                config_history,
-                metric_history,
-            ) = get_output_from_log(
+            time_history, best_valid_loss_history, valid_loss_history, config_history, metric_history= get_output_from_log(
                 filename=log_file_name, time_budget=self._settings["time_budget"]
             )
             plt.clf()
