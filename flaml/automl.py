@@ -2943,7 +2943,7 @@ class AutoML(BaseEstimator):
             class_names = None,
             plotfilename = None,
             row_index = 0,
-            log_file_name = None,
+            settings = None,
             plot_type = "waterfall", 
             model_type = None,
             explainer = "LIME",
@@ -2970,6 +2970,14 @@ class AutoML(BaseEstimator):
             shap = None
             logger.warning(
                 "In order to the use the visualization functionality of FLAML use pip install shap."
+            )
+        try:
+            import collections
+            from collections import Counter
+        except ImportError:
+            Counter = None
+            logger.warning(
+                "In order to the use the visualization functionality of FLAML use pip install collections."
             )
         # Showing the feature importance of the data that was trained on
         if type == "feature_importance":
@@ -3075,7 +3083,7 @@ class AutoML(BaseEstimator):
         elif type == "validation_accuracy":
             from flaml.data import get_output_from_log
             time_history, best_valid_loss_history, valid_loss_history, config_history, metric_history= get_output_from_log(
-                filename=log_file_name, time_budget=self._settings["time_budget"]
+                filename=settings['log_file_name'], time_budget=settings['time_budget']
             )
             plt.clf()
             plt.cla()
@@ -3085,6 +3093,27 @@ class AutoML(BaseEstimator):
             plt.scatter(time_history, 1 - np.array(valid_loss_history))
             plt.step(time_history, 1 - np.array(best_valid_loss_history), where='post')
             plt.savefig("{}".format(plotfilename))
+        elif type == "best_model":
+            from flaml.data import get_output_from_log
+            time_history, best_valid_loss_history, valid_loss_history, config_history, metric_history= get_output_from_log(
+                filename=settings['log_file_name'], time_budget=settings['time_budget']
+            )
+            bestmodels = []
+            for i in config_history:
+                bestmodels.append(i['Current Learner'])
+            bestmodels = Counter(bestmodels)
+            modelnames = []
+            modelvalues = []
+            for i in bestmodels:
+                modelnames.append(i)
+                modelvalues.append(bestmodels[i])
+            
+            plt.clf()
+            plt.cla()
+            plt.title("Best Models for Data")
+            plt.pie(modelvalues, labels = modelnames, autopct='%1.1f%%')
+            plt.axis('equal')
+            plt.show()
 
 
 
